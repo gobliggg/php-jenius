@@ -28,7 +28,8 @@ Untuk lebih detail silahkan kunjungi [PHP Jenius TravisCI](https://travis-ci.org
 * [Installasi](https://github.com/gobliggg/php-jenius#instalasi)
 * [Setting](https://github.com/gobliggg/php-jenius#koneksi-dan-setting)
 * [Login](https://github.com/gobliggg/php-jenius#login)
-* [Payment](https://github.com/gobliggg/php-jenius#payment-request)
+* [Payment Request](https://github.com/gobliggg/php-jenius#payment-request)
+* [Payment Status](https://github.com/gobliggg/php-jenius#payment-status)
 * [How to contribute](https://github.com/gobliggg/php-jenius#how-to-contribute)
 
 ### INSTALASI
@@ -164,6 +165,29 @@ Pastikan anda mendapatkan nilai ```TOKEN``` dan ```TOKEN``` tersebut masih berla
             $purchaseDesc,
             $createdAt,
             $referenceNo);
+
+    // Cek hasil response berhasil atau tidak
+    echo json_encode($response);
+```
+
+### PAYMENT STATUS
+
+Pastikan anda mendapatkan nilai ```TOKEN``` dan ```TOKEN``` tersebut masih berlaku (Tidak Expired).
+
+```php
+    // Ini adalah nilai token yang dihasilkan saat login
+    $token = "MvXPqa5bQs5U09Bbn8uejBE79BjI3NNCwXrtMnjdu52heeZmw9oXgB";
+
+    // Nomor Transaksi anda, Silahkan generate sesuai kebutuhan anda
+    $referenceNo = "";
+
+    // Tanggal transaksi anda
+    $createdAt = "2020-09-26T21:14:07";
+
+    $response = $jenius->getPaymentStatus(
+            $token,
+            $referenceNo,
+            $createdAt);
 
     // Cek hasil response berhasil atau tidak
     echo json_encode($response);

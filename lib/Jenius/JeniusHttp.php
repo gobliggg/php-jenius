@@ -292,6 +292,51 @@ class JeniusHttp
     }
 
     /**
+     * Get payment status
+     *
+     * @param string $oauth_token
+     * @param $referenceNo
+     * @param $createdAt
+     * @return Response
+     */
+    public function getPaymentStatus(
+        $oauth_token,
+        $referenceNo,
+        $createdAt
+    ) {
+        $uriSign = "GET:/" . $this->settings['segment'] . "/paystatus";
+        $apiKey = $this->settings['api_key'];
+        $apiSecret = $this->settings['secret_key'];
+
+        $btpnTimestamp = self::generateBtpnTimestamp();
+        $btpnOriginalTimestamp = self::generateOriginalTimestamp($createdAt);
+
+        $headers = array();
+        $headers['Accept'] = 'application/json';
+        $headers['Content-Type'] = 'application/json';
+        $headers['Authorization'] = "Bearer $oauth_token";
+        $headers['BTPN-ApiKey'] = $apiKey;
+        $headers['BTPN-Timestamp'] = $btpnTimestamp;
+        $headers['X-Channel-Id'] = $this->settings['x-channel-id'];
+        $headers['X-Node'] = 'Jenius Pay';
+        $headers['X-Transmission-Date-Time'] = $btpnTimestamp;
+        $headers['X-Original-Transmission-Date-Time'] = $btpnOriginalTimestamp;
+        $headers['X-Reference-No'] = $referenceNo;
+
+        $request_path = $this->settings['segment'] . "/paystatus";
+        $domain = $this->ddnDomain();
+        $full_url = $domain . $request_path;
+
+        $authSignature = self::generateSign($uriSign, $apiKey, $apiSecret, $btpnTimestamp, []);
+
+        $headers['BTPN-Signature'] = $authSignature;
+
+        $response = Request::get($full_url, $headers, null);
+
+        return $response;
+    }
+
+    /**
      * Generate Signature.
      *
      * @param string $url Url yang akan disign.
@@ -304,12 +349,16 @@ class JeniusHttp
      */
     public static function generateSign($url, $apiKey, $apiSecret, $btpnTimestamp, $bodyToHash = [])
     {
-        $encoderData = json_encode($bodyToHash, JSON_UNESCAPED_SLASHES);
-        $stringToSign = $url . ":" . $apiKey . ":" . $btpnTimestamp . ":" . $encoderData;
+        if (!empty($bodyToHash)) {
+            $encoderData = json_encode($bodyToHash, JSON_UNESCAPED_SLASHES);
+            $stringToSign = $url . ":" . $apiKey . ":" . $btpnTimestamp . ":" . $encoderData;
+        } else {
+            $stringToSign = $url . ":" . $apiKey . ":" . $btpnTimestamp;
+        }
+
         $auth_signature = hash_hmac('sha256', $stringToSign, $apiSecret, true);
         return base64_encode($auth_signature);
     }
-
 
     /**
      * Set TimeZone.
