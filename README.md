@@ -30,6 +30,7 @@ Untuk lebih detail silahkan kunjungi [PHP Jenius TravisCI](https://travis-ci.org
 * [Login](https://github.com/gobliggg/php-jenius#login)
 * [Payment Request](https://github.com/gobliggg/php-jenius#payment-request)
 * [Payment Status](https://github.com/gobliggg/php-jenius#payment-status)
+* [Payment Refund](https://github.com/gobliggg/php-jenius#payment-refund)
 * [How to contribute](https://github.com/gobliggg/php-jenius#how-to-contribute)
 
 ### INSTALASI
@@ -184,9 +185,39 @@ Pastikan anda mendapatkan nilai ```TOKEN``` dan ```TOKEN``` tersebut masih berla
     // Tanggal transaksi anda
     $createdAt = "2020-09-26T21:14:07";
 
-    $response = $jenius->getPaymentStatus(
+    $response = $jenius->paymentStatus(
             $token,
             $referenceNo,
+            $createdAt);
+
+    // Cek hasil response berhasil atau tidak
+    echo json_encode($response);
+```
+
+### PAYMENT REFUND
+
+Pastikan anda mendapatkan nilai ```TOKEN``` dan ```TOKEN``` tersebut masih berlaku (Tidak Expired).
+
+```php
+    // Ini adalah nilai token yang dihasilkan saat login
+    $token = "MvXPqa5bQs5U09Bbn8uejBE79BjI3NNCwXrtMnjdu52heeZmw9oXgB";
+
+    // Ini adalah nilai approval code yang dihasilkan saat payment status
+    $approvalCode = "";
+
+    // Nomor Transaksi anda, Silahkan generate sesuai kebutuhan anda
+    $referenceNo = "";
+
+    $amount = "50000";
+
+    // Tanggal transaksi anda
+    $createdAt = "2020-09-26T21:14:07";
+
+    $response = $jenius->paymentRefund(
+            $token,
+            $approvalCode,
+            $referenceNo,
+            $amount,
             $createdAt);
 
     // Cek hasil response berhasil atau tidak

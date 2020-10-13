@@ -244,7 +244,7 @@ class jeniusConstructorTest extends PHPUnit_Framework_TestCase
 
         $response = $jenius->paymentRequest(
             $token,
-            '50000.00',
+            '50000',
             'any-cashtag',
             'any-promo-code',
             'https://run.mocky.io/v3/55277c4f-24cc-4a50-9540-a81f9934747d',
@@ -253,7 +253,7 @@ class jeniusConstructorTest extends PHPUnit_Framework_TestCase
             '00000001'
         );
 
-        $this->assertEquals($response->code, 400);
+        $this->assertEquals($response->code, 401);
     }
 
     /**

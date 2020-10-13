@@ -299,7 +299,7 @@ class JeniusHttp
      * @param $createdAt
      * @return Response
      */
-    public function getPaymentStatus(
+    public function paymentStatus(
         $oauth_token,
         $referenceNo,
         $createdAt
@@ -332,6 +332,57 @@ class JeniusHttp
         $headers['BTPN-Signature'] = $authSignature;
 
         $response = Request::get($full_url, $headers, null);
+
+        return $response;
+    }
+
+    /**
+     * Create payment refund
+     *
+     * @param string $oauth_token
+     * @param $approvalCode
+     * @param $referenceNo
+     * @param $amount
+     * @param $createdAt
+     * @return Response
+     */
+    public function paymentRefund(
+        $oauth_token,
+        $approvalCode,
+        $referenceNo,
+        $amount,
+        $createdAt
+    ) {
+        $uriSign = "DELETE:/" . $this->settings['segment'] . "/payrefund?approval=" . $approvalCode;
+        $apiKey = $this->settings['api_key'];
+        $apiSecret = $this->settings['secret_key'];
+
+        $btpnTimestamp = self::generateBtpnTimestamp();
+        $btpnOriginalTimestamp = self::generateOriginalTimestamp($createdAt);
+
+        $headers = array();
+        $headers['Accept'] = 'application/json';
+        $headers['Content-Type'] = 'application/json';
+        $headers['Authorization'] = "Bearer $oauth_token";
+        $headers['BTPN-ApiKey'] = $apiKey;
+        $headers['BTPN-Timestamp'] = $btpnTimestamp;
+        $headers['X-Channel-Id'] = $this->settings['x-channel-id'];
+        $headers['X-Node'] = 'Jenius Pay';
+        $headers['X-Transmission-Date-Time'] = $btpnTimestamp;
+        $headers['X-Original-Transmission-Date-Time'] = $btpnOriginalTimestamp;
+        $headers['X-Reference-No'] = $referenceNo;
+        $headers['X-Amount'] = $amount;
+
+
+        $request_path = $this->settings['segment'] . "/payrefund?approval=" . $approvalCode;
+        $domain = $this->ddnDomain();
+        $full_url = $domain . $request_path;
+
+        $authSignature = self::generateSign($uriSign, $apiKey, $apiSecret, $btpnTimestamp, []);
+
+        $headers['BTPN-Signature'] = $authSignature;
+
+        $response = Request::delete($full_url, $headers, null);
 
         return $response;
     }
